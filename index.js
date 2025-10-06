@@ -1,26 +1,27 @@
-console.log('Happy developing ✨')
+console.log('Happy developing ✨');
 
-let texto;
+let datosTomados = []; // array global
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("pagina cargada");
+async function tomarDatosSVC() {
+    const datos = await (await fetch("email-password-recovery-code.csv")).text();
+    const lineas = datos.trim().split('\n');
+    const headers = lineas[0].split(';').map(h => h.trim());
+
+    datosTomados = lineas.map((linea, index) =>
+        Object.fromEntries(
+            headers.map((h, i) => [h, index === 0 ? h : (linea.split(';')[i] ?? '')])
+        )
+    );
+
+    return datosTomados;
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("Página cargada");
     const mostrar = document.getElementById('mostrar');
-
-    fetch("email-password-recovery-code.csv")
-        .then(response => response.text())  // obtenemos el texto del CSV
-        .then(data => {
-            texto = data;  // aquí tienes todo el contenido del CSV en data
-            window.texto = data;
-            console.log(texto)
-            // si quieres, guárdalo en una variable global
-            window.data = texto;
-            mostrar.innerHTML = texto;
-        });
+    await tomarDatosSVC(); // espera a que los datos se carguen
+    console.log(datosTomados); // ya contiene la lista de objetos
+    mostrar.innerHTML = datosTomados;
 
 });
-
-
-
-
-
-
